@@ -49,16 +49,20 @@
           </td>
           <% if DelayedJob.where("handler LIKE '%:process\nargs:\n- #{retrieval.id}\n%'").size > 0 %>
               <td>
-                <a href="<%=edsc_path "/data/cancel?retrieval_id=#{retrieval.to_param}" %>" title="Cancel Retrieval"
-                   title="cancel"
-                   data-method="delete"
-                   data-confirm="Are you sure you want to cancel this download? This action cannot be undone."
-                   rel="nofollow"><i class="fa fa-trash"></i></a>
+                <div class="data-access-collection-actions">
+                  <a href="<%=edsc_path "/data/cancel?retrieval_id=#{retrieval.to_param}" %>" title="Cancel Retrieval"
+                     title="cancel"
+                     data-method="delete"
+                     data-confirm="Are you sure you want to cancel this download? This action cannot be undone."
+                     rel="nofollow"><i class="fa fa-trash"></i></a>
+                </div>
               </td>
           <% end %>
           <% if DelayedJob.where("handler LIKE '%:process\nargs:\n- #{retrieval.id}\n%'").size == 0 %>
             <td>
-              Canceled
+              <div class="data-access-collection-status">
+                Canceled
+              </div>
             </td>
           <% end %>
         </tr>
