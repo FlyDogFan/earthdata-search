@@ -50,9 +50,23 @@ class DataAccessController < ApplicationController
     retrieval.user = user
     retrieval.project = project
     retrieval.save!
-
-    Retrieval.delay.process(retrieval.id, token, cmr_env, edsc_path(request.base_url + '/'), session[:access_token])
-
+    
+    queue = "Default"
+    daacs = ENV["priority_daacs"].split(",")
+    collections = JSON.parse(params[:project])['collections']
+    daacs.each do |daac|
+      collections.each do |collection|
+        if collection['id'].include? daac
+          queue = daac
+          break
+        end
+      end
+      if queue != "Default"
+        break
+      end
+    end
+    priority = queue == "Default" ? 1 : 0
+    Retrieval.delay(:queue => queue, :priority => priority).process(retrieval.id, token, cmr_env, edsc_path(request.base_url + '/'), session[:access_token])
     redirect_to edsc_path("/data/retrieve/#{retrieval.to_param}")
   end
 
