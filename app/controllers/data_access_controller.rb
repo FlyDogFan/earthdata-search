@@ -65,8 +65,7 @@ class DataAccessController < ApplicationController
         break
       end
     end
-    priority = queue == "Default" ? 1 : 0
-    Retrieval.delay(:queue => queue, :priority => priority).process(retrieval.id, token, cmr_env, edsc_path(request.base_url + '/'), session[:access_token])
+    Retrieval.delay(:queue => queue).process(retrieval.id, token, cmr_env, edsc_path(request.base_url + '/'), session[:access_token])
     redirect_to edsc_path("/data/retrieve/#{retrieval.to_param}")
   end
 
