@@ -13,7 +13,7 @@ ns.LayerBuilder = do (GibsTileLayer = ns.L.GibsTileLayer) ->
       maxNativeZoom: 7
     MODIS_Terra_CorrectedReflectance_TrueColor:
       name: 'Corrected Reflectance (True Color)'
-      product: 'MODIS_Terra_CorrectedReflectance_TrueColor'
+      product: 'VIIRS_SNPP_CorrectedReflectance_TrueColor'
       resolution: '250m'
       format: 'jpeg'
       maxNativeZoom: 7
