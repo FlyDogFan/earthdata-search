@@ -52,12 +52,14 @@ ns.ProjectList = do (ko
     constructor: (@project, @collectionResults) ->
       @visible = ko.observable(false)
       @needsTemporalChoice = ko.observable(false)
+      @moreDetailsVisible = ko.observable(false)
 
       @collectionLinks = ko.computed(@_computeCollectionLinks, this, deferEvaluation: true)
       @collectionsToDownload = ko.computed(@_computeCollectionsToDownload, this, deferEvaluation: true)
       @collectionOnly = ko.computed(@_computeCollectionOnly, this, deferEvaluation: true)
       @submittedOrders = ko.computed(@_computeSubmittedOrders, this, deferEvaluation: true)
       @submittedServiceOrders = ko.computed(@_computeSubmittedServiceOrders, this, deferEvaluation: true)
+      @submittedServiceOrderTotal = ko.computed(@_computeSubmittedServiceOrderTotal, this, deferEvaluation: true)
       @pollProjectUpdates = ko.computed(@_computeProjectUpdates, this, deferEvaluation: true)
       @pollingIntervalId = ko.observable(null)
 
@@ -102,8 +104,8 @@ ns.ProjectList = do (ko
       if limit && collection.granuleCount() > limit
         message = collection.tags()['edsc.collection_alerts']['data']['message']
         if message && message.length > 0
-          $("#delayOptionalMessage").text("Message from data provider: " + message) 
-        else 
+          $("#delayOptionalMessage").text("Message from data provider: " + message)
+        else
           $("#delayOptionalMessage").text("")
         $("#delayWarningModal").modal('show')
       else
@@ -198,7 +200,7 @@ ns.ProjectList = do (ko
         collectionId = collection.id
         has_browse = collection.browseable_granule?
         for m in projectCollection.serviceOptions.accessMethod() when m.type == 'order'
-          @pollProjectUpdates()
+          # @pollProjectUpdates()
           canCancel = ['SUBMITTING', 'QUOTED', 'NOT_VALIDATED', 'QUOTED_WITH_EXCEPTIONS', 'VALIDATED'].indexOf(m.orderStatus) != -1
           orders.push
             dataset_id: collection.dataset_id
@@ -236,28 +238,49 @@ ns.ProjectList = do (ko
             @project.fromJson(data)
           complete: =>
             shouldPoll = false
-        )), 15000)
+        )), 5000)
         @pollingIntervalId(intervalId)
 
     _computeSubmittedServiceOrders: ->
       serviceOrders = []
       id = @project.id()
       for projectCollection in @project.accessCollections()
+        console.log('projectCollection',projectCollection)
         collection = projectCollection.collection
         collectionId = collection.id
         has_browse = collection.browseable_granule?
         for m in projectCollection.serviceOptions.accessMethod() when m.type == 'service'
+
+          console.log('m', m)
           @pollProjectUpdates()
+
           total_processed = m.serviceOptions.total_processed
           total_number = m.serviceOptions.total_number
-          percent_done = (total_processed / total_number * 100).toFixed(0)
+          percent_done = (total_processed / total_number * 100).toFixed(2)
+          total_orders = m.serviceOptions.total_orders
+          has_downloads_available = !$.isEmptyObject(m.serviceOptions.download_urls)
+          orders = []
+
+          for order in m.serviceOptions.orders
+            orders.push
+              order_id: order.order_id
+              contact: order.contact
+              order_status: order.order_status
+              total_number: order.total_number
+              total_processed: order.total_processed
+              download_urls: order.download_urls
+              percent_done: (order.total_processed / order.total_number * 100).toFixed(2)
+
+          # m.orderStatus = "in progress"
 
           serviceOrders.push
             dataset_id: collection.dataset_id
             order_id: m.orderId
             order_status: m.orderStatus
+            order_status_to_classname: @orderStatusToClassName(m.orderStatus)
             is_in_progress: m.orderStatus != 'creating' && m.orderStatus != 'failed' && m.orderStatus != 'complete'
-            download_urls: m.serviceOptions.download_urls[m.orderId]
+            download_urls: m.serviceOptions.download_urls
+            has_downloads_available: has_downloads_available
             total_processed: m.serviceOptions.total_processed
             total_number: m.serviceOptions.total_number
             percent_done: percent_done
@@ -265,7 +288,25 @@ ns.ProjectList = do (ko
             downloadBrowseUrl: has_browse && urlUtil.fullPath("/granules/download.html?browse=true&project=#{id}&collection=#{collectionId}")
             error_code: m.errorCode
             error_message: m.errorMessage
+            total_orders: m.serviceOptions.total_orders
+            complete_orders: m.serviceOptions.total_complete
+            orders: orders
+            contact: if orders && orders.length then orders[0].contact else false
+            is_more_details_visible: ko.observable(false)
+            is_download_links_visible: ko.observable(false)
+      console.log(serviceOrders)
       serviceOrders
+
+    _computeSubmittedServiceOrderTotal: ->
+      serviceOrders = []
+      serviceOrderTotal = 0
+      for projectCollection in @project.accessCollections()
+        for m in projectCollection.serviceOptions.accessMethod() when m.type == 'service'
+          console.log('M', m)
+          console.log('m.serviceOptions.orders.length', m.serviceOptions.orders.length)
+          serviceOrderTotal += m.serviceOptions.orders.length
+      console.log('serviceOrderTotal', serviceOrderTotal)
+      serviceOrderTotal
 
     _computeCollectionOnly: ->
       collections = []
@@ -307,5 +348,15 @@ ns.ProjectList = do (ko
 
     hideRelatedUrls: ->
       $('#related-urls-modal').modal('hide')
+
+    toggleMoreDetails: ->
+      this.is_more_details_visible(!this.is_more_details_visible())
+
+    toggleDownloadLinks: ->
+      console.log('fired', this.is_download_links_visible());
+      this.is_download_links_visible(!this.is_download_links_visible())
+
+    orderStatusToClassName: (status) ->
+      status.replace(' ', '-')
 
   exports = ProjectList

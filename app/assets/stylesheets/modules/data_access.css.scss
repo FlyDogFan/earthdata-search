@@ -192,7 +192,22 @@ section.data-access-next {
 
 .data-access-collections-list {
   list-style-type: disc;
-  padding-left: 2em;
+  margin-left: 2em;
+}
+
+.data-access-collections-list-panel {
+
+  list-style-type: none;
+  margin: 0 -1.5em;
+
+  .data-access-collection {
+    border-bottom: 1px solid #bbb;
+    padding: 2rem;
+  }
+
+  .data-access-collection:first-child {
+    border-top: 1px solid #bbb;
+  }
 }
 
 .data-access-collection {
@@ -205,11 +220,92 @@ section.data-access-next {
   margin: .5em 0;
 }
 
+.data-access-collection-body {
+  display: flex;
+  align-items: center;
+}
+
+.data-access-collection-state {
+  width: 15%;
+  margin-top: 0.16em;
+  padding: .55em;
+  background: #34495e;
+  border-radius: 2px;
+  vertical-align: top;
+  color: #fff;
+  text-align: center;
+  text-transform: capitalize;
+
+  &.closed, &.complete {
+    background: #27ae60;
+  }
+
+  &.failed, &.canceled, &.cancelling, &.submit_rejected, &.submit_failed, &.quote_rejected, &.quote_failed, &.not_validated {
+    background: #e74c3c;
+  }
+}
+
+.data-access-collection-state-text {
+  width: 83%;
+  margin-left: 1.5%;
+}
+
 .data-access-collection-actions {
   margin: .5em 0;
 
   a.text-button {
     margin-bottom: .3em;
+  }
+}
+
+.data-access-collection-est {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin-right: 1em;
+}
+
+.data-access-collection-percentage {
+  font-weight: 400;
+}
+
+.data-access-collection-detail {
+  margin-top: 1em;
+}
+
+.data-access-collection-contact {
+  font-size: 0.85em;
+  color: #888;
+}
+
+.data-access-services-orders {
+  list-style: none;
+  margin-left: 0;
+}
+
+.data-access-order-id {
+  margin-bottom: 0;
+  font-size: 0.85em;
+  font-weight: 400;
+  color: #888;
+}
+
+.data-access-order-status {
+  display: inline-block;
+  margin-right: 0.5em;
+  padding: 0.05em .45em;
+  background: #34495e;
+  border-radius: 2px;
+  font-size: .85em;
+  color: #fff;
+  text-align: center;
+  text-transform: capitalize;
+
+  &.closed, &.complete {
+    background: #27ae60;
+  }
+
+  &.failed, &.canceled, &.cancelling, &.submit_rejected, &.submit_failed, &.quote_rejected, &.quote_failed, &.not_validated {
+    background: #e74c3c;
   }
 }
 
@@ -411,22 +507,6 @@ section.data-access-next {
   white-space: nowrap;
 }
 
-.order-state {
-  background: #34495e;
-  padding: .3em .6em;
-  border-radius: 2px;
-  color: #fff;
-  text-transform: capitalize;
-
-  &.closed, &.complete {
-    background: #27ae60;
-  }
-
-  &.failed, &.canceled, &.cancelling, &.submit_rejected, &.submit_failed, &.quote_rejected, &.quote_failed, &.not_validated {
-    background: #e74c3c;
-  }
-}
-
 .access-subset-options {
   padding: 1em;
 
@@ -473,6 +553,11 @@ section.data-access-next {
 
 .data-access-services-links {
   margin-left: 30px;
+}
+
+.progress {
+  margin-top: 0.325em;
+  border: 1px solid #e0e0e0;
 }
 
 .progress-bar {
