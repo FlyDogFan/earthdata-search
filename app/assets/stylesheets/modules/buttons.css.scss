@@ -213,6 +213,17 @@ button:disabled {
   }
 }
 
+.button-secondary {
+  color: #888;
+  text-shadow: none;
+  background: transparent;
+
+  &:hover {
+    background: transparent;
+    color: #888;
+  }
+}
+
 .whats-cwic {
   @include light-button;
   color: #fff;
